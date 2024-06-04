@@ -7,7 +7,7 @@ if [ "$#" -ne 1 ]; then
 fi
 
 PDF_FILE="$1"
-DIRECTORY="exported"
+PREFIX="exported"
 KEY=$RANDOM
 
 export_info() {
@@ -44,5 +44,5 @@ yad --plug=$KEY --tabnum=4 --list --no-click --no-selection --column="Name" --co
 yad --notebook --width=1000 --height=700 --title="Simple PDF Analyzer" --button="Export Information:bash -c 'mkdir -p exported \
     && cd exported && pdfinfo \"$PDF_FILE\" > basic_info.txt && exiftool \"$PDF_FILE\" > detailed_info.txt \
     && pdfimages -list \"$PDF_FILE\" > image_info.txt && pdffonts \"$PDF_FILE\" > font_info.txt'" \
-    --button="Export Images:bash -c 'mkdir -p exported && cd exported && pdfimages -all \"$PDF_FILE\" $DIRECTORY'" --button="Close":1 \
+    --button="Export Images:bash -c 'mkdir -p exported && cd exported && pdfimages -all \"$PDF_FILE\" $PREFIX'" --button="Close":1 \
     --key=$KEY --tab="Basic Info" --tab="Detailed Info" --tab="Image Info" --tab="Font Info"
