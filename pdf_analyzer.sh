@@ -23,7 +23,7 @@ yad --plug=$KEY --tabnum=2 --list --no-click --no-selection --column="Key" --col
     < <(exiftool "$PDF_FILE" | sed -r "s/:[ ]*/\n/") &
 
 # RETRIEVES AND CLEANS THE OUTPUT FROM PDFIMAGES
-yad --plug=$KEY --tabnum=3 --list --no-click --no-selection  --column="Page" --column="Num" --column="Type" \
+yad --plug=$KEY --tabnum=3 --list --no-click --no-selection  --column="Page" --column="Number" --column="Type" \
     --column="Width" --column="Height" --column="Color" --column="Color Components" --column="Bits Per Component" --column="Encoding" \
     --column="Interpolation" --column="Object ID" --column="X-PPI" --column="Y-PPI" --column="Size" \
     --column="Ratio" --column="Raw Data" \
