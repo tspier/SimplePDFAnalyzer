@@ -1,7 +1,7 @@
 <table border="1">
   <tr>
     <td><b>NAME</b></td>
-    <td style="text-align: justify;">Simple PDF Analyzer</td>
+    <td style="text-align: justify;">SimplePDFAnalyzer</td>
   </tr>
   <tr>
     <td><b>VERSION</b></td>
