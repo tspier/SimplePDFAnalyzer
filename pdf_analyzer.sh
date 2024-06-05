@@ -6,23 +6,24 @@ if [ "$#" -ne 1 ]; then
     exit 1
 fi
 
+# GENERAL INITIALIZATION
 PDF_FILE="$1"
 PREFIX="exported"
 KEY=$RANDOM
 
-export_info() {
-    echo "HELLO";
-}
-
 # RETRIEVES AND CLEANS THE OUTPUT FROM PDFINFO
+# BY ORGANIZING IT INTO APPROPRIATE KEY-VALUE PAIRS
 yad --plug=$KEY --tabnum=1 --list --no-click --no-selection --column="Key" --column="Value" \
     < <(pdfinfo "$PDF_FILE" | sed -r "s/:[ ]*/\n/") &
 
 # RETRIEVES AND CLEANS THE OUTPUT FROM EXIFTOOL
+# BY ORGANIZING IT INTO APPROPRIATE KEY-VALUE PAIRS
 yad --plug=$KEY --tabnum=2 --list --no-click --no-selection --column="Key" --column="Value" \
     < <(exiftool "$PDF_FILE" | sed -r "s/:[ ]*/\n/") &
 
 # RETRIEVES AND CLEANS THE OUTPUT FROM PDFIMAGES
+# BY ORGANIZING IT INTO SIXTEEN COLUMNS CORRESPONDING
+# TO THE DETAILS RETURNED
 yad --plug=$KEY --tabnum=3 --list --no-click --no-selection  --column="Page" --column="Number" --column="Type" \
     --column="Width" --column="Height" --column="Color" --column="Color Components" --column="Bits Per Component" --column="Encoding" \
     --column="Interpolation" --column="Object ID" --column="X-PPI" --column="Y-PPI" --column="Size" \
@@ -33,6 +34,8 @@ yad --plug=$KEY --tabnum=3 --list --no-click --no-selection  --column="Page" --c
         }') &
 
 # RETRIEVES AND CLEANS THE OUTPUT FROM PDFFONTS
+# BY ORGANIZING IT INTO SEVEN COLUMNS CORRESPONDING
+# TO THE DETAILS RETURNED
 yad --plug=$KEY --tabnum=4 --list --no-click --no-selection --column="Name" --column="Type" --column="Encoding" \
     --column="Embedded" --column="Subset" --column="Unicode" --column="Object ID" \
     < <(pdffonts "$PDF_FILE" | \
@@ -40,9 +43,22 @@ yad --plug=$KEY --tabnum=4 --list --no-click --no-selection --column="Name" --co
             printf "%s\n%s\n%s\n%s\n%s\n%s\n%s\n", $1, $2, $3, $4, $5, $6, $7
         }') &
 
+# RETRIEVES THE OUTPUT FROM PDFTOTEXT AND SAVES
+# TO A TEMPORARY FILE TO BE DELETED UPON CLOSING
+pdftotext "$PDF_FILE" - > "pdftext.txt"
+yad --plug=$KEY --tabnum=5 --text-info --wrap --margins=10 --show-cursor --show-uri --uri-color=red --filename="pdftext.txt" &
+
 # BUILDS AND DISPLAYS THE GUI WITH FUNCTIONS TO EXPORT
+# UPON CLICKING THE RELEVANT BUTTONS, A FOLDER IS CREATED,
+# IF IT DOES NOT ALREADY EXIST, TO HOUSE THE EXPORTED
+# INFORMATION.
 yad --notebook --width=1000 --height=700 --title="Simple PDF Analyzer" --button="Export Information:bash -c 'mkdir -p exported \
     && cd exported && pdfinfo \"$PDF_FILE\" > basic_info.txt && exiftool \"$PDF_FILE\" > detailed_info.txt \
     && pdfimages -list \"$PDF_FILE\" > image_info.txt && pdffonts \"$PDF_FILE\" > font_info.txt'" \
-    --button="Export Images:bash -c 'mkdir -p exported && cd exported && pdfimages -all \"$PDF_FILE\" $PREFIX'" --button="Close":1 \
-    --key=$KEY --tab="Basic Info" --tab="Detailed Info" --tab="Image Info" --tab="Font Info"
+    --button="Export Images:bash -c 'mkdir -p exported && cd exported && pdfimages -all \"$PDF_FILE\" $PREFIX'" \
+    --button="Export Contents:bash -c 'mkdir -p exported && cd exported && pdftotext \"$PDF_FILE\" contents.txt'" --button="Close":1 \
+    --key=$KEY --tab="Basic Info" --tab="Detailed Info" --tab="Image Info" --tab="Font Info" --tab="File Contents"
+
+# THIS REMOVES THE TEMPORARY FILE CREATED EARLIER
+# FOR THE PDFTOTEXT CONTENTS TO BE DISPLAYED
+rm pdftext.txt
