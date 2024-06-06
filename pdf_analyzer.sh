@@ -11,6 +11,18 @@ PDF_FILE="$1"
 PREFIX="exported"
 KEY=$RANDOM
 
+About_Dialogue() {
+    yad --about \
+  --image=gtk-about \
+  --license="GPL3" \
+  --comments="A simple GUI to organize and display the output of PDF tools" \
+  --copyright="(c) 2024 Troy E. Spier, Ph.D." \
+  --pversion="v0.1" \
+  --pname="SimplePDFAnalyzer"
+}
+
+export -f About_Dialogue
+
 # RETRIEVES AND CLEANS THE OUTPUT FROM PDFINFO
 # BY ORGANIZING IT INTO APPROPRIATE KEY-VALUE PAIRS
 yad --plug=$KEY --tabnum=1 --list --no-click --no-selection --column="Key" --column="Value" \
@@ -56,9 +68,10 @@ yad --notebook --width=1000 --height=700 --title="Simple PDF Analyzer" --button=
     && cd exported && pdfinfo \"$PDF_FILE\" > basic_info.txt && exiftool \"$PDF_FILE\" > detailed_info.txt \
     && pdfimages -list \"$PDF_FILE\" > image_info.txt && pdffonts \"$PDF_FILE\" > font_info.txt'" \
     --button="Export Images:bash -c 'mkdir -p exported && cd exported && pdfimages -all \"$PDF_FILE\" $PREFIX'" \
-    --button="Export Contents:bash -c 'mkdir -p exported && cd exported && pdftotext \"$PDF_FILE\" contents.txt'" --button="Close":1 \
+    --button="Export Contents:bash -c 'mkdir -p exported && cd exported && pdftotext \"$PDF_FILE\" contents.txt'" --button="About:bash -c About_Dialogue" --button="Close":1 \
     --key=$KEY --tab="Basic Info" --tab="Detailed Info" --tab="Image Info" --tab="Font Info" --tab="File Contents"
 
 # THIS REMOVES THE TEMPORARY FILE CREATED EARLIER
 # FOR THE PDFTOTEXT CONTENTS TO BE DISPLAYED
+# BECAUSE USERS MIGHT NOT WANT TO EXPORT THE CONTENTS
 rm pdftext.txt
